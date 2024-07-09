@@ -1,7 +1,7 @@
 FROM node:alpine
 
 WORKDIR /app
-COPY package.json .
+COPY auth/package.json auth/package-lock.json* ./
 RUN npm install --omit=dev
 COPY . .
 
