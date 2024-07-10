@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@weonlifetickets/common": "^1.0.23",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "next": "^13.5.6",
