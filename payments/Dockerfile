@@ -1,7 +1,7 @@
 FROM node:alpine
 
 WORKDIR /app
-COPY payments/package.json payments/package-lock.json* ./
+COPY package.json package-lock.json* ./
 RUN npm install
 COPY . .
 
