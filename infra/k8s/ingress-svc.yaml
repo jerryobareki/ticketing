@@ -10,36 +10,36 @@ spec:
     - host: weonlifemyapp.mooo.com
       http:
         paths:
-          - path: /api/payments/?(.*)
-            pathType: Prefix
+          - path: /api/payments(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: payments-clusterip-svc
                 port:
                   number: 3000
-          - path: /api/users/?(.*)
-            pathType: Prefix
+          - path: /api/users(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: auth-clusterip-svc
                 port:
                   number: 3000
-          - path: /api/tickets/?(.*)
-            pathType: Prefix
+          - path: /api/tickets(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: tickets-clusterip-svc
                 port:
                   number: 3000
-          - path: /api/orders/?(.*)
-            pathType: Prefix
+          - path: /api/orders(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: orders-clusterip-svc
                 port:
                   number: 3000
-          - path: /?(.*) # This path catches all requests and should be listed at the bottom
-            pathType: Prefix
+          - path: /(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: client-app-svc
