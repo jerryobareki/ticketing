@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+    stages {
+        stage('Cloning from Git') {
+            steps {
+               git credentialsId: 'git', url: 'https://github.com/jerryobareki/ticketing.git'
+            }
+        }
+        stage("Install kubectl") {
+            steps {
+                sh '''
+                    curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl
+                    chmod +x ./kubectl
+                    ./kubectl version --client
+                '''
+            }
+        }
+        stage('Running kubectl commands') {
+            steps {
+                script {
+                    sh './kubectl apply -f infra/k8s/auth-depl.yaml -n myapp'
+                }
+            }
+        }
+    }
+}
