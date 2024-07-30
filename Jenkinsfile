@@ -102,14 +102,6 @@ pipeline {
     post {
         always {
             script {
-                // Clean up Docker system and containers
-                container('docker') {
-                    sh '''
-                        docker system prune -af || true
-                        docker ps -q | xargs -r docker stop || true
-                        docker ps -aq | xargs -r docker rm || true
-                    '''
-                }
                 cleanWs() // Clean up workspace files
             }
         }
