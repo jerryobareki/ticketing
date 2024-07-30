@@ -45,7 +45,7 @@ pipeline {
         stage('Code Quality Test') {
             steps {
                 container('docker') {
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('sonarServer') {
                         sh 'sonar-scanner -Dsonar.projectKey=ticketing-app'
                     }
                 }
