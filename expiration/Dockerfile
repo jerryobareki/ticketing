@@ -1,8 +1,8 @@
 FROM node:alpine
 
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY expiration/package.json expiration/package-lock.json ./
 RUN npm install
-COPY . .
+COPY expiration .
 
 CMD ["npm", "start"]

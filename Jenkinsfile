@@ -14,11 +14,6 @@ pipeline {
                     volumeMounts:
                     - mountPath: /var/run/docker.sock
                       name: docker-sock
-                  - name: kubectl
-                    image: bitnami/kubectl:latest
-                    command:
-                    - cat
-                    tty: true
                   volumes:
                   - name: docker-sock
                     hostPath:
@@ -37,21 +32,35 @@ pipeline {
         }
         stage('Cloning from Git') {
             steps {
-                container('docker') {
+                script {
                     git credentialsId: 'git', url: 'https://github.com/jerryobareki/ticketing.git'
                 }
             }
         }
-        stage('Code Quality Test') {
+        stage('Check Node.js Version') {
             steps {
-                container('docker') {
-                    withSonarQubeEnv('sonarServer') {
-                        sh 'sonar-scanner -Dsonar.projectKey=ticketing-app'
+                script {
+                    nodejs('nodejs') {
+                        sh 'node -v'
                     }
                 }
             }
         }
-
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    nodejs('nodejs') {
+                        def scannerHome = tool 'sonarScanner'
+                        withSonarQubeEnv('sonarServer') {
+                            sh """
+                                ${scannerHome}/bin/sonar-scanner \
+                                    -Dsonar.projectKey=ticketing-app
+                            """
+                        }
+                    }
+                }
+            }
+        }
         stage('Logging in to Docker') {
             steps {
                 container('docker') {
@@ -74,7 +83,51 @@ pipeline {
                         }
                     }
                 }
-                // Add more parallel stages here if needed
+                stage('build & push client') {
+                    steps {
+                        container('docker') {
+                            sh '''
+                                docker buildx build -f client/Dockerfile -t weonlife/client . --push
+                            '''
+                        }
+                    }
+                }
+                stage('build & push expiration') {
+                    steps {
+                        container('docker') {
+                            sh '''
+                                docker buildx build -f expiration/Dockerfile -t weonlife/expiration . --push
+                            '''
+                        }
+                    }
+                }
+                stage('build & push orders') {
+                    steps {
+                        container('docker') {
+                            sh '''
+                                docker buildx build -f orders/Dockerfile -t weonlife/orders . --push
+                            '''
+                        }
+                    }
+                }
+                stage('build & push payments') {
+                    steps {
+                        container('docker') {
+                            sh '''
+                                docker buildx build -f payments/Dockerfile -t weonlife/payments . --push
+                            '''
+                        }
+                    }
+                }
+                stage('build & push tickets') {
+                    steps {
+                        container('docker') {
+                            sh '''
+                                docker buildx build -f tickets/Dockerfile -t weonlife/tickets . --push
+                            '''
+                        }
+                    }
+                }
             }
         }
         stage('Logging out of Docker') {
@@ -88,12 +141,12 @@ pipeline {
         }
         stage('Email notification') {
             steps {
-                emailext body: 'The job is stable and waiting to be deployed', recipientProviders: [buildUser()], subject: 'ticketing-app', to: 'obarekijerry@outlook.com'
+                emailext body: 'The job is stable and waiting to be deployed', recipientProviders: [buildUser()], subject: 'ticketing-app', to: 'jerry.obareki.cobber365@gmail.com'
             }
         }
         stage('Approval Gate') {
-            steps{
-                timeout(time:2 , unit:"DAYS"){
+            steps {
+                timeout(time: 2, unit: "DAYS") {
                     input message: "Waiting for approval to complete job and deploy"
                 }
             }

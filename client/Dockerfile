@@ -1,8 +1,8 @@
 FROM node:alpine
 
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY client/package.json client/package-lock.json ./
 RUN npm install
-COPY . .
+COPY client .
 
 CMD ["npm", "run", "dev"]
